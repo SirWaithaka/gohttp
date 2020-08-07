@@ -1,6 +1,7 @@
 package htpclient
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/url"
@@ -8,6 +9,7 @@ import (
 	"time"
 )
 
+//HtpClient used as an abstraction/wrapper over the default http.Client type
 type HtpClient struct {
 	client *http.Client
 }
@@ -24,6 +26,7 @@ type Request struct {
 	url     string
 	headers []Header
 	body    io.Reader
+	ctx     context.Context
 }
 
 //Method returns the http request verb used
@@ -129,7 +132,7 @@ func (c *HtpClient) do(request *Request) (*Response, error) {
 	// rather than panic and add 10 second timeout
 	if c.client == nil {
 		c.client = http.DefaultClient
-		timeout := time.Duration(10 * time.Second)
+		timeout := 10 * time.Second
 		c.client.Timeout = timeout
 	}
 
@@ -166,7 +169,14 @@ func (c *HtpClient) newRequest(request *Request) (*http.Request, error) {
 		return nil, err
 	}
 
+	// add headers
 	req.Header = buildHeaders(request.headers)
+
+	// run with given context
+	if request.ctx != nil {
+		req.WithContext(request.ctx)
+	}
+
 	return req, nil
 }
 
@@ -217,15 +227,4 @@ func headers(h map[string][]string) []Header {
 		headers = append(headers, Header{key: k, values: v})
 	}
 	return headers
-}
-
-//WithHeader is option configuration type on the Header type
-//which appends a key, value pair of extra headers to the
-//header instance
-func WithHeader(key, value string) func(*Request) {
-	return func(r *Request) {
-		r.headers = append(r.headers, Header{
-			key: key, values: []string{value},
-		})
-	}
 }
