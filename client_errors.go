@@ -1,6 +1,6 @@
 package gohttp
 
-//Error defines that an exception has occurred with
+// Error defines that an exception has occurred with
 // HTTPClient.
 type Error struct {
 	// custom message

@@ -66,10 +66,11 @@ func NewHTTPClient(client *http.Client, options ...ClientConfigOption) *HTTPClie
 
 // Get builds a Request instance, applies the given Request configurations and
 // performs a GET request to the given url
-func (c *HTTPClient) Get(url string, options ...RequestConfig) (*Response, error) {
+func (c *HTTPClient) Get(ctx context.Context, url string, options ...RequestConfig) (*Response, error) {
 	request := &Request{
 		method: http.MethodGet,
 		url:    url,
+		ctx:    ctx,
 	}
 	applyOptions(request, options...)
 
@@ -78,11 +79,12 @@ func (c *HTTPClient) Get(url string, options ...RequestConfig) (*Response, error
 
 // Post builds a Request instance, applies the given Request configurations and
 // performs a POST request to the given url
-func (c *HTTPClient) Post(url string, body io.Reader, options ...RequestConfig) (*Response, error) {
+func (c *HTTPClient) Post(ctx context.Context, url string, body io.Reader, options ...RequestConfig) (*Response, error) {
 	request := &Request{
 		method: http.MethodPost,
 		url:    url,
 		body:   body,
+		ctx:    ctx,
 	}
 	applyOptions(request, options...)
 
@@ -91,11 +93,12 @@ func (c *HTTPClient) Post(url string, body io.Reader, options ...RequestConfig) 
 
 // Put builds a Request instance, applies the given Request configurations and
 // performs a PUT request to the given url
-func (c *HTTPClient) Put(url string, body io.Reader, options ...RequestConfig) (*Response, error) {
+func (c *HTTPClient) Put(ctx context.Context, url string, body io.Reader, options ...RequestConfig) (*Response, error) {
 	request := &Request{
 		method: http.MethodPut,
 		url:    url,
 		body:   body,
+		ctx:    ctx,
 	}
 	applyOptions(request, options...)
 
@@ -104,11 +107,12 @@ func (c *HTTPClient) Put(url string, body io.Reader, options ...RequestConfig) (
 
 // Delete builds a Request instance, applies the given Request configurations and
 // performs a DELETE request to the given url
-func (c *HTTPClient) Delete(url string, body io.Reader, options ...RequestConfig) (*Response, error) {
+func (c *HTTPClient) Delete(ctx context.Context, url string, body io.Reader, options ...RequestConfig) (*Response, error) {
 	request := &Request{
 		method: http.MethodDelete,
 		url:    url,
 		body:   body,
+		ctx:    ctx,
 	}
 	applyOptions(request, options...)
 
