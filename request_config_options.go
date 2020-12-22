@@ -1,4 +1,4 @@
-package htpclient
+package gohttp
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 	"io"
 )
 
-//RequestConfig is type use to modify a Request instance
+// RequestConfig is type use to modify a Request instance
 type RequestConfig func(*Request)
 
 // RequestBody declares a type for all data that is going to be sent as json
@@ -20,16 +20,16 @@ func (body *RequestBody) reader() io.Reader {
 	return bytes.NewReader(data)
 }
 
-//WithContext adds a context instance that can be used with the request
+// WithContext adds a context instance that can be used with the request
 func WithContext(ctx context.Context) RequestConfig {
 	return func(r *Request) {
 		r.ctx = ctx
 	}
 }
 
-//WithHeader is option configuration type on the Header type
-//which appends a key, value pair of extra headers to the
-//header instance
+// WithHeader is option configuration type on the Header type
+// which appends a key, value pair of extra headers to the
+// header instance
 func WithHeader(key, value string) RequestConfig {
 	return func(r *Request) {
 		r.headers = append(r.headers, Header{
@@ -38,22 +38,22 @@ func WithHeader(key, value string) RequestConfig {
 	}
 }
 
-//WithAcceptJSONHeader can be used to add application/json mime type to Accept header
+// WithAcceptJSONHeader can be used to add application/json mime type to Accept header
 func WithAcceptJSONHeader() RequestConfig {
 	return WithHeader("Accept", MIMEApplicationJSON)
 }
 
-//WithContentTypeJSONHeader can be used to add application/json mime type to Content-Type header
+// WithContentTypeJSONHeader can be used to add application/json mime type to Content-Type header
 func WithContentTypeJSONHeader() RequestConfig {
 	return WithHeader("Content-Type", MIMEApplicationJSON)
 }
 
-//WithContentTypeXMLHeader can be used to add application/json mime type to Content-Type header
+// WithContentTypeXMLHeader can be used to add application/json mime type to Content-Type header
 func WithContentTypeXMLHeader() RequestConfig {
 	return WithHeader("Content-Type", MIMETextHTML)
 }
 
-//WithAuthorizationTokenHeader can be used to add bearer authorization token
+// WithAuthorizationTokenHeader can be used to add bearer authorization token
 func WithAuthorizationTokenHeader(token string) RequestConfig {
 	return WithHeader("Authorization", "Bearer "+token)
 }

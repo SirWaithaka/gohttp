@@ -1,4 +1,4 @@
-package htpclient
+package gohttp
 
 import "time"
 

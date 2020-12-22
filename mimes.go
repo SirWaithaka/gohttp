@@ -1,4 +1,4 @@
-package htpclient
+package gohttp
 
 // MIME types
 const (

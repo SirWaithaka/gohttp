@@ -1,4 +1,4 @@
-package htpclient
+package gohttp
 
 //Error defines that an exception has occurred with
 // HTTPClient.
