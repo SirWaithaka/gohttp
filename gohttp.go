@@ -2,6 +2,7 @@ package htpclient
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -9,18 +10,18 @@ import (
 	"time"
 )
 
-//HtpClient used as an abstraction/wrapper over the default http.Client type
-type HtpClient struct {
+// HTTPClient used as an abstraction/wrapper over the default http.Client type
+type HTTPClient struct {
 	client *http.Client
 }
 
-//Header definition of key and values for request/response headers
+// Header definition of key and values for request/response headers
 type Header struct {
 	key    string
 	values []string
 }
 
-//Request defines a type used by HtpClient as a http request instance
+// Request defines a type used by HTTPClient as a http request instance
 type Request struct {
 	method  string
 	url     string
@@ -29,23 +30,23 @@ type Request struct {
 	ctx     context.Context
 }
 
-//Method returns the http request verb used
+// Method returns the http request verb used
 func (req *Request) Method() string {
 	return req.method
 }
 
-//Body defines the response body type
+// Body defines the response body type
 type Body struct {
 	io.ReadCloser
 }
 
-//Status is the response status of a request
+// Status is the response status of a request
 type Status struct {
 	Code   int    // e.g 200
 	Reason string // e.g "OK"
 }
 
-//Response defines a type used by HtpClient as a http response instance
+// Response defines a type used by HTTPClient as a http response instance
 type Response struct {
 	*Request // original request object tied to this response
 	Status   Status
@@ -53,9 +54,9 @@ type Response struct {
 	Body
 }
 
-//NewHtpClient builds a new HtpClient instance with given configuration options
-func NewHtpClient(client *http.Client, options ...ClientConfigOption) *HtpClient {
-	htpclient := &HtpClient{client: client}
+// NewHTTPClient builds a new HTTPClient instance with given configuration options
+func NewHTTPClient(client *http.Client, options ...ClientConfigOption) *HTTPClient {
+	htpclient := &HTTPClient{client: client}
 
 	for _, opt := range options {
 		opt(htpclient)
@@ -63,83 +64,75 @@ func NewHtpClient(client *http.Client, options ...ClientConfigOption) *HtpClient
 	return htpclient
 }
 
-//IsSuccess returns bool value if the response code indicates a success
-func (c HtpClient) IsSuccess(code int) bool {
-	return code/100 == http.StatusOK/100
-}
-
-//Get builds a Request instance, applies the given Request configurations and
-//performs a GET request to the given url
-func (c *HtpClient) Get(url string, options ...RequestConfig) (*Response, error) {
+// Get builds a Request instance, applies the given Request configurations and
+// performs a GET request to the given url
+func (c *HTTPClient) Get(url string, options ...RequestConfig) (*Response, error) {
 	request := &Request{
 		method: http.MethodGet,
 		url:    url,
 	}
-	c.applyOptions(request, options...)
+	applyOptions(request, options...)
 
 	return c.do(request)
 }
 
-//Post builds a Request instance, applies the given Request configurations and
-//performs a POST request to the given url
-func (c *HtpClient) Post(url string, body io.Reader, options ...RequestConfig) (*Response, error) {
+// Post builds a Request instance, applies the given Request configurations and
+// performs a POST request to the given url
+func (c *HTTPClient) Post(url string, body io.Reader, options ...RequestConfig) (*Response, error) {
 	request := &Request{
 		method: http.MethodPost,
 		url:    url,
 		body:   body,
 	}
-	c.applyOptions(request, options...)
+	applyOptions(request, options...)
 
 	return c.do(request)
 }
 
-//Put builds a Request instance, applies the given Request configurations and
-//performs a PUT request to the given url
-func (c *HtpClient) Put(url string, body io.Reader, options ...RequestConfig) (*Response, error) {
+// Put builds a Request instance, applies the given Request configurations and
+// performs a PUT request to the given url
+func (c *HTTPClient) Put(url string, body io.Reader, options ...RequestConfig) (*Response, error) {
 	request := &Request{
 		method: http.MethodPut,
 		url:    url,
 		body:   body,
 	}
-	c.applyOptions(request, options...)
+	applyOptions(request, options...)
 
 	return c.do(request)
 }
 
-//Delete builds a Request instance, applies the given Request configurations and
-//performs a DELETE request to the given url
-func (c *HtpClient) Delete(url string, body io.Reader, options ...RequestConfig) (*Response, error) {
+// Delete builds a Request instance, applies the given Request configurations and
+// performs a DELETE request to the given url
+func (c *HTTPClient) Delete(url string, body io.Reader, options ...RequestConfig) (*Response, error) {
 	request := &Request{
 		method: http.MethodDelete,
 		url:    url,
 		body:   body,
 	}
-	c.applyOptions(request, options...)
+	applyOptions(request, options...)
 
 	return c.do(request)
 }
 
-//helper func that applies request configurations to Request instance
-func (c *HtpClient) applyOptions(request *Request, options ...RequestConfig) {
+// helper func that applies request configurations to Request instance
+func applyOptions(request *Request, options ...RequestConfig) {
 	for _, opt := range options {
 		opt(request)
 	}
 }
 
-func (c *HtpClient) do(request *Request) (*Response, error) {
+func (c *HTTPClient) do(request *Request) (*Response, error) {
 
-	// check if HtpClient.client is nil and use the default client
-	// rather than panic and add 10 second timeout
+	// check if HTTPClient.client is nil
 	if c.client == nil {
-		c.client = http.DefaultClient
-		timeout := 10 * time.Second
-		c.client.Timeout = timeout
+		return nil, errors.New("cannot perform request, http client is nil")
 	}
 
 	// build http.Request object
-	req, err := c.newRequest(request)
+	req, err := newRequest(request)
 	if err != nil {
-		//TODO("Provide a custom error message for error")
+		// TODO("Provide a custom error message for error")
 		return nil, Error{err.Error(), err}
 	}
 
@@ -161,9 +154,9 @@ func (c *HtpClient) do(request *Request) (*Response, error) {
 	return &response, nil
 }
 
-//this func builds a standard http.Request instance from a htpclient custom
-//request instance, it adds any headers and returns
-func (c *HtpClient) newRequest(request *Request) (*http.Request, error) {
+// this func builds a standard http.Request instance from a htpclient custom
+// request instance, it adds any headers and returns
+func newRequest(request *Request) (*http.Request, error) {
 	req, err := http.NewRequest(request.method, request.url, request.body)
 	if err != nil {
 		return nil, err
@@ -194,7 +187,7 @@ func (r *Response) IsJSON() bool {
 	return contains(headers["Content-Type"], MIMEApplicationJSON)
 }
 
-//IsXML returns true if response headers contains content-type
+// IsXML returns true if response headers contains content-type
 // text/xml
 func (r *Response) IsXML() bool {
 	headers := buildHeaders(r.Headers)
@@ -227,4 +220,17 @@ func headers(h map[string][]string) []Header {
 		headers = append(headers, Header{key: k, values: v})
 	}
 	return headers
+}
+
+// DefaultHTTPClient
+func DefaultHTTPClient() *HTTPClient {
+	c := http.DefaultClient
+	c.Timeout = time.Second * 30
+
+	return NewHTTPClient(c)
+}
+
+// IsSuccess returns bool value if the response code indicates a success
+func IsSuccess(code int) bool {
+	return code/100 == http.StatusOK/100
 }

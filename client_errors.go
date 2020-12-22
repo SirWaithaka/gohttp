@@ -1,12 +1,12 @@
 package htpclient
 
 //Error defines that an exception has occurred with
-//HtpClient.
+// HTTPClient.
 type Error struct {
 	// custom message
 	msg string
 
-	// original error returned by HtpClient
+	// original error returned by HTTPClient
 	Err error
 }
 
