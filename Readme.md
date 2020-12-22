@@ -20,10 +20,10 @@ const url = "https://jsonbox.io/demobox_6d9e326c183fde7b"
 
 func main() {
 
-    client := htpclient.NewHtpClient(http.DefaultClient, htpclient.WithTimeout(30*time.Second))    
+    client := gohttp.NewHtpClient(http.DefaultClient, gohttp.WithTimeout(30*time.Second))    
 
     // we are going to tell the api that we accept json as valid response
-    options := []htpclient.RequestConfig{htpclient.WithAcceptJSONHeader()}
+    options := []gohttp.RequestConfig{gohttp.WithAcceptJSONHeader()}
     response, err := client.Get(url, options...)
     if err != nil {
         log.Println(err)
@@ -48,7 +48,7 @@ import (
 const url = "https://jsonbox.io/box_45bedf7b0a8c89ca223a"
 
 func main() {
-    client := htpclient.NewHtpClient(http.DefaultClient, htpclient.WithTimeout(30*time.Second))
+    client := gohttp.NewHtpClient(http.DefaultClient, gohttp.WithTimeout(30*time.Second))
 
 	data := map[string]interface{}{
 		"city":         "Nairobi",
@@ -62,7 +62,7 @@ func main() {
 	_ = json.NewEncoder(&body).Encode(&data)
 
 	// we will pass this options to the request for extra configuration before the request is sent
-	options := []htpclient.RequestConfig{htpclient.WithAcceptJSONHeader(), htpclient.WithContentTypeJSONHeader()}
+	options := []gohttp.RequestConfig{gohttp.WithAcceptJSONHeader(), gohttp.WithContentTypeJSONHeader()}
 	response, err := client.Post(url+"/cities", bytes.NewReader(body.Bytes()), options...)
 	if err != nil {
 		log.Println(err)

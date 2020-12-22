@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sirwaithaka/htpclient"
+	gohttp "github.com/sirwaithaka/gohttp"
 )
 
 const url = "https://jsonbox.io/box_45bedf7b0a8c89ca223a"
 
 func main() {
-	client := htpclient.NewHtpClient(http.DefaultClient, htpclient.WithTimeout(30*time.Second))
+	client := gohttp.NewHTTPClient(http.DefaultClient, gohttp.WithTimeout(30*time.Second))
 
 	data := map[string]interface{}{
 		"city":         "Nairobi",
@@ -27,7 +27,7 @@ func main() {
 	_ = json.NewEncoder(&body).Encode(&data)
 
 	// we will pass this options to the request for extra configuration before the request is sent
-	options := []htpclient.RequestConfig{htpclient.WithAcceptJSONHeader(), htpclient.WithContentTypeJSONHeader()}
+	options := []gohttp.RequestConfig{gohttp.WithAcceptJSONHeader(), gohttp.WithContentTypeJSONHeader()}
 	res, err := client.Post(url+"/cities", bytes.NewReader(body.Bytes()), options...)
 	if err != nil {
 		log.Println(err)
