@@ -1,3 +1,3 @@
-module github.com/sirwaithaka/gohttp
+module github.com/SirWaithaka/gohttp
 
 go 1.14
