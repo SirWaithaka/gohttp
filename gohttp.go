@@ -3,6 +3,7 @@ package gohttp
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -234,7 +235,22 @@ func DefaultHTTPClient() *HTTPClient {
 	return NewHTTPClient(c)
 }
 
-// IsSuccess returns bool value if the response code indicates a success
-func IsSuccess(code int) bool {
+// StatusIsSuccess returns bool value if the response code indicates a success
+func StatusIsSuccess(code int) bool {
 	return code/100 == http.StatusOK/100
+}
+
+func StatusIsClientError(code int) bool {
+	return code/100 == http.StatusBadRequest/100
+}
+
+func StatusIsServerError(code int) bool {
+	return code/100 == http.StatusInternalServerError/100
+}
+
+func RaiseForStatus(r *Response) error {
+	if !StatusIsSuccess(r.Status.Code) {
+		return fmt.Errorf("api request fail, returned status %v", r.Status.Code)
+	}
+	return nil
 }
