@@ -36,6 +36,18 @@ func (req *Request) Method() string {
 	return req.method
 }
 
+func (req *Request) URL() string {
+	return req.url
+}
+
+func (req *Request) Headers() []Header {
+	return req.headers
+}
+
+func (req *Request) Body() io.Reader {
+	return req.body
+}
+
 // Body defines the response body type
 type Body struct {
 	io.ReadCloser
